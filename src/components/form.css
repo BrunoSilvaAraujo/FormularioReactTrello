@@ -1,0 +1,121 @@
+#text-area,
+#textArea,
+#inputEmail,
+#inputNome,
+#linha-1,
+#linha-2,
+#linha-3,
+#check,
+#select,
+#titulo-tags {
+  color: rgb(4, 162, 253);
+  border-color: rgb(4, 162, 253);
+}
+#retira-erro {
+    margin-left: 50px;
+    font-size: 25px;
+    font-weight: bold;
+    text-shadow: 0 0 0.2rem rgba(51, 51, 51, 0.637);
+    cursor: pointer;
+    color: #000;
+}
+#alerta {
+    display: none;
+    position: absolute;
+    margin-top: -90px;
+    width: 100%;
+    margin-left: -126px;
+}
+#linha-1 {
+  align-items: flex-end;
+  justify-content: space-between;
+}
+#check {
+  align-items: flex-start;
+  justify-content: space-between;
+}
+#linha-2 {
+  align-items: flex-end;
+}
+#linha-3 {
+  align-items: baseline;
+  align-items: flex-end;
+  justify-content: space-between;
+}
+#linha-3-col-2 {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+}
+#check-3 {
+  margin-right: 7px;
+}
+#select {
+  margin-left: 10px;
+  cursor: pointer;
+}
+#textArea {
+  height: 200px;
+}
+.label-tags {
+  border: 1px solid rgb(4, 162, 253);
+  border-radius: 4px;
+  font-size: 12px;
+  text-align: center;
+  margin-left: 3px;
+  margin-bottom: 20px;
+  overflow: hidden;
+  cursor: pointer;
+}
+#titulo-tags {
+  margin-left: -10px;
+}
+#btn-submit {
+  margin-bottom: 20px;
+}
+#inputOpt-1, #inputOpt-2, #inputOpt-3 {
+    cursor: pointer;
+}
+
+@media (min-width: 300px) and (max-width: 500px) {
+    #alerta {
+        display: none;
+        position: absolute;
+        margin-top: -90px;
+        width: 100%;
+        margin-left: -56px;
+    }
+  .label-tags {
+    border: 1px solid rgb(4, 162, 253);
+    border-radius: 4px;
+    font-size: 12px;
+    text-align: center;
+    margin-left: 9px;
+    margin-bottom: 20px;
+    overflow: hidden;
+  }
+  #select {
+    margin-left: 5px;
+    width: 200px;
+    cursor: pointer;
+  }
+  #check {
+    font-size: 11px;
+    margin-bottom: 10px;
+  }
+  #check-1 {
+    margin-left: -9px;
+  }
+  #check-2 {
+    margin-left: -10px;
+  }
+  #check-3 {
+    margin-right: 20px;
+  }
+  #container-text-area {
+    height: 300px;
+  }
+  #textArea {
+    height: 260px;
+  }
+}
