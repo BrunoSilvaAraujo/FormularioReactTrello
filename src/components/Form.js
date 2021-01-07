@@ -1,6 +1,17 @@
-import React, { useState } from 'react';
-import './form.css';
-import {  Row, Col, Button, Form, FormGroup, Label, Input, Container, Alert } from 'reactstrap';
+import React, { useState } from "react";
+import "./form.css";
+import {
+  Row,
+  Col,
+  Button,
+  Form,
+  FormGroup,
+  Label,
+  Input,
+  Container,
+  Alert,
+} from "reactstrap";
+import credencial from "../credencial";
 
 const initialValue = {
   nome: "",
@@ -16,7 +27,7 @@ const FormTrello = () => {
   const [checked_2, setChecked_2] = useState(false);
   const [checked_3, setChecked_3] = useState(false);
 
-  const recebeDadosTags = (id) => {
+  const sinalizaTagMarcada = (id) => {
     let idMinuscula = id.toLowerCase();
 
     if (
@@ -35,6 +46,7 @@ const FormTrello = () => {
 
   const carregaDadosForm = (evt) => {
     const { name, value } = evt.target;
+
     if (name == "inputOpt-1") {
       setChecked_1(!checked_1);
       if (!checked_1 == true) {
@@ -59,52 +71,28 @@ const FormTrello = () => {
         valuesForm.options.splice(valuesForm.options.indexOf(name), 1);
       }
     }
-    const objectValueForm = { ...valuesForm, [name]: value };
-    delete valuesForm["inputOpt-1"];
-    delete valuesForm["inputOpt-2"];
-    delete valuesForm["inputOpt-3"];
-    setValuesForm(objectValueForm);
+    const newValuesForm = { ...valuesForm, [name]: value };
+    delete newValuesForm["inputOpt-1"];
+    delete newValuesForm["inputOpt-2"];
+    delete newValuesForm["inputOpt-3"];
+    setValuesForm(newValuesForm);
   };
 
-  const onsubmit = (evt) => {
-    evt.preventDefault();
-    if (validate(valuesForm).length > 0 ) {
-        document.getElementById('alerta').style.display = "block"
-        validate(valuesForm).map( item  => {
-            if ( item == ".label-tags" ) {
-                document.querySelectorAll(item).forEach( element => {
-                    element.style.borderColor = 'rgba(230, 39, 39, 0.562)'
-                })
-            }else if ( item.slice( 0, 5 ) == 'check') {
-                document.getElementById(item).style.color = 'rgba(230, 39, 39, 0.562)'
-            }else if ( item != ".label-tags" ) {
-                document.getElementById(item).style.border = '1px solid rgba(230, 39, 39, 0.562)'
-            }
-        })
-      return 
+  const onsubmit = (event) => {
+    event.preventDefault();
+
+    if (validate(valuesForm).length > 0) {
+      retiraErro()
+      retornaErro()
+      return;
+
     } else {
-      // a { key } e o { token } estã sendo deixadas aqui par fins de testes
-      let url = `https://api.trello.com/1/cards?key=44131a793f2e57943e8dccc1b7746e6e&token=2fc144ee87088bf3baac4264ed47acc483f9cb2d2a4000b67ea8c2dfe5ac68bd&idList=5feb453f039e128041f9c552&name=${valuesForm.nome}&desc={ Text Area }: ${valuesForm.text}...{ Email }: ${valuesForm.email}...{ Opções }: ${valuesForm.options}...{ Select }: ${valuesForm.select}...{ Tags }: ${valuesForm.tags}&due=2020-12-31&color=red&pos=top`;
-      fetch(url, {
-        method: "POST",
-      })
+        let url = `https://api.trello.com/1/cards?key=${credencial.KEY}&token=${credencial.TOKEN}&idList=5feb453f039e128041f9c552&name=${valuesForm.nome}&desc={ Text Area }: ${valuesForm.text}...{ Email }: ${valuesForm.email}...{ Opções }: ${valuesForm.options}...{ Select }: ${valuesForm.select}...{ Tags }: ${valuesForm.tags}&due=2020-12-31&color=red&pos=top`;
+        fetch(url, {
+          method: "POST",
+        })
         .then((response) => {
-          valuesForm.tags.map((item) => {
-            let id = item.toLowerCase();
-            document.getElementById(id).style.backgroundColor = "white";
-          });
-          setChecked_1(false)
-          setChecked_2(false)
-          setChecked_3(false)
-          document.getElementById("formulario").reset();
-          setValuesForm({
-            nome: "",
-            email: "",
-            text: "",
-            options: [],
-            select: "",
-            tags: [],
-          })
+          limpaFormulario()
           return response.text();
         })
         .then((text) => console.log(text))
@@ -116,19 +104,16 @@ const FormTrello = () => {
     let regNumeros = new RegExp("[0-9#@$%!&=*+]", "g");
     let regEmail1 = new RegExp(/^[a-z0-9._]+@[a-z0-9]+\.[a-z]+\.[a-z]+?$/i);
     let regEmail2 = new RegExp(/^[a-z0-9._]+@[a-z0-9]+\.[a-z]+?$/i);
-    let regEmail3 = new RegExp(
-      "[A-ZáàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ#$%!&=*+]",
-      "g"
-    );
+    let regEmail3 = new RegExp("[A-ZáàâãéèêíïóôõöúçñÁÀÂÃÉÈÍÏÓÔÕÖÚÇÑ#$%!&=*+]","g");
 
-    const error = []
+    const erro = [];
 
     if (
       regNumeros.test(values.nome) ||
       values.nome == "" ||
       values.nome.length < 2
     ) {
-      error.push("inputNome");
+      erro.push("inputNome");
     }
     if (
       (!regEmail1.test(values.email) &&
@@ -137,48 +122,99 @@ const FormTrello = () => {
       (regEmail3.test(values.email) && values.email != "") ||
       values.email == ""
     ) {
-      error.push("inputEmail");
+      erro.push("inputEmail");
     }
     if (values.options.length == 0 || values.options == []) {
-      error.push("check-1")
-      error.push("check-2")
-      error.push("check-3")
+      erro.push("check-1");
+      erro.push("check-2");
+      erro.push("check-3");
+    }
+    if ( values.select == 'Selecione uma opção' || values.select == "" ) {
+      erro.push("select")
     }
     if (values.tags.length == 0 || values.tags == []) {
-      error.push(".label-tags");
+      erro.push(".label-tags");
     }
     if (values.text == "" || typeof values.text == undefined) {
-      error.push("textArea");
+      erro.push("textArea");
     }
 
-    return error;
+    return erro;
   };
+
+  const limpaFormulario = () => {
+    valuesForm.tags.map((item) => {
+      let id = item.toLowerCase();
+      document.getElementById(id).style.backgroundColor = "white";
+    });
+    setChecked_1(false);
+    setChecked_2(false);
+    setChecked_3(false);
+    document.getElementById("formulario").reset();
+    setValuesForm({
+      nome: "",
+      email: "",
+      text: "",
+      options: [],
+      select: "",
+      tags: [],
+    });
+    retiraErro()
+  }
+
   const retiraErro = () => {
-    validate(valuesForm).map( item  => {
-        if ( item == ".label-tags" ) {
-            document.querySelectorAll(item).forEach( element => {
-                element.style.borderColor = 'rgb(4, 162, 253)'
-            })
-        }else if ( item.slice( 0, 5 ) == 'check') {
-            document.getElementById(item).style.color = 'rgb(4, 162, 253)'
-        }else if ( item != ".label-tags" ) {
-            document.getElementById(item).style.border = '1px solid rgb(4, 162, 253)'
+    let arrayInputs = [ 
+      "inputNome", "inputEmail", "check-1", "check-2", "check-3", 
+      "select", ".label-tags", "textArea"
+    ]
+    arrayInputs.map((item) => {
+      if (item == ".label-tags") {
+        document.querySelectorAll(item).forEach((element) => {
+          element.style.borderColor = "rgb(4, 162, 253)";
+        });
+      } else if (item.slice(0, 5) == "check") {
+        document.getElementById(item).style.color = "rgb(4, 162, 253)";
+      } else if (item != ".label-tags") {
+        document.getElementById(item).style.border =
+          "1px solid rgb(4, 162, 253)";
+      }
+    });
+    document.getElementById("alerta").style.display = "none";
+  };
+
+  const retornaErro = () => {
+    document.getElementById("alerta").style.display = "block";
+      validate(valuesForm).map((item) => {
+        if (item == ".label-tags") {
+          document.querySelectorAll(item).forEach((element) => {
+            element.style.borderColor = "rgba(230, 39, 39, 0.562)";
+          });
+        } else if (item.slice(0, 5) == "check") {
+          document.getElementById(item).style.color =
+            "rgba(230, 39, 39, 0.562)";
+        } else if (item != ".label-tags") {
+          document.getElementById(item).style.border =
+            "1px solid rgba(230, 39, 39, 0.562)";
         }
-    })
-    document.getElementById('alerta').style.display = 'none'
+      });
   }
 
   return (
     <Container>
       <Alert id="alerta" color="danger">
-        <strong>campos com erro: </strong> Por favor, não pode haver campo de texto vazio ou fora de padrão de preenchimento, selecione ao menos uma opção dos campos selecionáveis !
-        <Label type="buttom" id="retira-erro" onClick={retiraErro}>X</Label>
+        <strong>campos com erro: </strong> Por favor, não pode haver campo de
+        texto vazio ou fora de padrão de preenchimento, selecione ao menos uma
+        opção dos campos selecionáveis !
+        <Label type="buttom" id="retira-erro" onClick={retiraErro}>
+          X
+        </Label>
       </Alert>
-      <Form form onSubmit={onsubmit} id="formulario">
+      <Form form onSubmit={onsubmit} id="formulario" autocomplete='off'>
         <Row xs="2" sm="16" id="linha-1">
           <FormGroup>
             <Label for="nome">Nome</Label>
             <Input
+              autocomplete="no"
               type="text"
               name="nome"
               id="inputNome"
@@ -243,6 +279,7 @@ const FormTrello = () => {
               id="select"
               onChange={carregaDadosForm}
             >
+              <option selected>Selecione uma opção</option>
               <option>Select 1</option>
               <option>Select 2</option>
               <option>Select 3</option>
@@ -269,7 +306,7 @@ const FormTrello = () => {
                 <Button
                   type="button"
                   id="web"
-                  onClick={() => recebeDadosTags("Web")}
+                  onClick={() => sinalizaTagMarcada("Web")}
                   size="sm"
                   outline
                   color="primary"
@@ -280,7 +317,7 @@ const FormTrello = () => {
                 <Button
                   type="button"
                   id="illustration"
-                  onClick={() => recebeDadosTags("Illustration")}
+                  onClick={() => sinalizaTagMarcada("Illustration")}
                   size="sm"
                   outline
                   color="primary"
@@ -291,7 +328,7 @@ const FormTrello = () => {
                 <Button
                   type="button"
                   id="graphics"
-                  onClick={() => recebeDadosTags("Graphics")}
+                  onClick={() => sinalizaTagMarcada("Graphics")}
                   size="sm"
                   outline
                   color="primary"
@@ -302,7 +339,7 @@ const FormTrello = () => {
                 <Button
                   type="button"
                   id="ui"
-                  onClick={() => recebeDadosTags("Ui")}
+                  onClick={() => sinalizaTagMarcada("Ui")}
                   size="sm"
                   outline
                   color="primary"
@@ -314,7 +351,7 @@ const FormTrello = () => {
               <Row md="5">
                 <Button
                   id="design"
-                  onClick={() => recebeDadosTags("Design")}
+                  onClick={() => sinalizaTagMarcada("Design")}
                   size="sm"
                   outline
                   color="primary"
@@ -324,7 +361,7 @@ const FormTrello = () => {
                 </Button>
                 <Button
                   id="app"
-                  onClick={() => recebeDadosTags("App")}
+                  onClick={() => sinalizaTagMarcada("App")}
                   size="sm"
                   outline
                   color="primary"
@@ -334,7 +371,7 @@ const FormTrello = () => {
                 </Button>
                 <Button
                   id="iphone"
-                  onClick={() => recebeDadosTags("Iphone")}
+                  onClick={() => sinalizaTagMarcada("Iphone")}
                   size="sm"
                   outline
                   color="primary"
@@ -344,7 +381,7 @@ const FormTrello = () => {
                 </Button>
                 <Button
                   id="interface"
-                  onClick={() => recebeDadosTags("Interface")}
+                  onClick={() => sinalizaTagMarcada("Interface")}
                   size="sm"
                   outline
                   color="primary"
@@ -356,7 +393,7 @@ const FormTrello = () => {
               <Row md="3">
                 <Button
                   id="icon"
-                  onClick={() => recebeDadosTags("Icon")}
+                  onClick={() => sinalizaTagMarcada("Icon")}
                   size="sm"
                   outline
                   color="primary"
@@ -366,7 +403,7 @@ const FormTrello = () => {
                 </Button>
                 <Button
                   id="web design"
-                  onClick={() => recebeDadosTags("Web Design")}
+                  onClick={() => sinalizaTagMarcada("Web Design")}
                   size="sm"
                   outline
                   color="primary"
@@ -387,4 +424,3 @@ const FormTrello = () => {
 };
 
 export default FormTrello;
-
